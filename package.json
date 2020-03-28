@@ -1,0 +1,22 @@
+{
+  "name": "pwd",
+  "version": "0.0.1",
+  "description": "password manager",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SigmaHyperon/pwd.git"
+  },
+  "author": "SigmaHyperon",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/SigmaHyperon/pwd/issues"
+  },
+  "homepage": "https://github.com/SigmaHyperon/pwd#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
