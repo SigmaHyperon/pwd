@@ -1,10 +1,11 @@
 const express = require('express');
 const mongo = require('mongoose');
+const config = require('config');
 const app = express();
 
 app.use(express.json());
 
-mongo.connect('mongodb://172.24.0.115/pwd-test', {
+mongo.connect(`mongodb://${config.get("mongo.host")}:${config.get("mongo.port")}/${config.get("mongo.db")}`, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 });
@@ -65,6 +66,7 @@ app.use("/", express.static("www"));
 app.use("/bootstrap", express.static("node_modules/bootstrap/dist"));
 app.use("/popperjs", express.static("node_modules/popper.js/dist"));
 
-app.listen(8080, () => {
-    console.log('Server running succefully...')
+const port = config.get("port");
+app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
 })
