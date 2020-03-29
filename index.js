@@ -15,14 +15,16 @@ mongo.connection.once('open', () => {
 });
 
 
-const pwdModel = {
+const pwdSchema = new mongo.Schema({
 	service: 	{type: String, required: true},
 	userName:	String,
 	eMail: 		String,
-	password:	String
-}
+	password:	String,
+	isCurrent:  {type: Boolean, default: true},
+	modifyDate: Date
+});
 
-const pwd = mongo.model('password', pwdModel);
+const pwd = mongo.model('password', pwdSchema);
 
 app.post("/pwd", (req, res) => {
 	if(req.body){
@@ -33,17 +35,36 @@ app.post("/pwd", (req, res) => {
 });
 app.put('/pwd', async function (req, res) {
 	if(req.body){
-		const existing = await getPwdList(req.body);
-		if(existing.length === 0){
-			createPwd(req.body).then(v =>{
-				if(typeof v.errors === 'undefined'){
+		if(req.body._id){
+			//update exsting
+			const id = req.body._id;
+			delete req.body._id;
+			const document = await pwd.findById(id).exec();
+			Object.entries(req.body).forEach(v => {
+				document[v[0]] = v[1];
+			});
+			document._id = mongo.Types.ObjectId();
+			document.isNew = true;
+			const result = await document.save();
+			if(result === document){
+				res.sendStatus(200);
+				const blubb = await pwd.findByIdAndUpdate(id, {isCurrent: false, modifyDate: new Date()}).exec();
+			} else {
+				res.status(500).json({error: "error while saving"});
+			}
+		} else {
+			// create new
+			const existing = await getPwdList(req.body);
+			if(existing.length === 0){
+				const result = createPwd(req.body);
+				if(typeof result.errors === 'undefined'){
 					res.sendStatus(200);
 				} else {
 					res.status(500).json({error: v.errors});
 				}
-			});
-		} else {
-			res.status(409).json({error: "document elready exists"});
+			} else {
+				res.status(409).json({error: "document elready exists"});
+			}
 		}
 	} else {
 		res.sendStatus(400);
@@ -55,6 +76,7 @@ async function getPwdList(filter){
 	Object.entries(filter).forEach(e => {
 		query[e[0]] = new RegExp(e[1], "i");
 	});
+	query["isCurrent"] = true;
 	return pwd.find(query).exec();
 }
 
