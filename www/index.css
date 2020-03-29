@@ -1,0 +1,12 @@
+h1#title {
+	float: left;
+}
+button#add {
+	float: right;
+	margin-top: 0.5em;
+}
+div#alert-box{
+	float: left;
+	clear: both;
+	width: 100%;
+}
